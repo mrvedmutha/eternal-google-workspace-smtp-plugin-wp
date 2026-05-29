@@ -19,6 +19,7 @@ define( 'EGWS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'EGWS_OPTION_KEY', 'egws_settings' );
 
 require_once EGWS_PLUGIN_DIR . 'includes/class-crypto.php';
+require_once EGWS_PLUGIN_DIR . 'includes/class-logger.php';
 require_once EGWS_PLUGIN_DIR . 'includes/class-settings.php';
 require_once EGWS_PLUGIN_DIR . 'includes/class-mailer.php';
 

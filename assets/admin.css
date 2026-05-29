@@ -2,13 +2,14 @@
     margin-bottom: 20px;
 }
 
+/* Cards */
 .egws-card {
     background: #fff;
     border: 1px solid #c3c4c7;
     border-radius: 4px;
     padding: 24px 28px;
     margin-bottom: 20px;
-    max-width: 780px;
+    max-width: 900px;
 }
 
 .egws-card h2 {
@@ -16,7 +17,13 @@
     font-size: 1.1em;
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
+}
+
+.egws-card h3 {
+    font-size: 1em;
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
 .egws-card .form-table th {
@@ -27,24 +34,125 @@
     border-left: 4px solid #2271b1;
 }
 
-.egws-info-card {
-    border-left: 4px solid #00a32a;
-    background: #f6fff8;
+/* Instructions (inside config card, below save button) */
+.egws-instructions {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
 }
 
-.egws-info-card ol {
-    margin: 0 0 12px 18px;
+.egws-instructions ol {
+    margin: 0 0 16px 18px;
 }
 
-.egws-info-card ol li {
-    margin-bottom: 6px;
+.egws-instructions ol li {
+    margin-bottom: 7px;
+    line-height: 1.6;
 }
 
-.egws-saved {
+.egws-info-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    background: #f6f7f7;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 10px 14px;
+    font-size: 0.9em;
+}
+
+/* Status text */
+.egws-status-ok {
     color: #00a32a;
-    font-weight: 500;
+    font-weight: 600;
 }
 
+.egws-status-fail {
+    color: #d63638;
+    font-weight: 600;
+}
+
+/* Notices */
 .notice.egws-notice {
-    max-width: 780px;
+    max-width: 900px;
+}
+
+/* Log card */
+.egws-log-card {
+    border-left: 4px solid #646970;
+}
+
+.egws-log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.egws-log-header h2 {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.egws-clear-form {
+    margin: 0;
+}
+
+.egws-log-table {
+    margin-top: 14px;
+    font-size: 0.9em;
+}
+
+.egws-log-table th {
+    font-weight: 600;
+    background: #f6f7f7;
+}
+
+.egws-col-time {
+    white-space: nowrap;
+    color: #646970;
+    font-size: 0.85em;
+}
+
+.egws-col-error code {
+    font-size: 0.85em;
+    color: #d63638;
+    background: #fef7f7;
+    padding: 2px 5px;
+    border-radius: 2px;
+    word-break: break-word;
+}
+
+/* Type badges */
+.egws-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.egws-badge-test {
+    background: #e8f0fe;
+    color: #1a73e8;
+}
+
+.egws-badge-system {
+    background: #f0f0f0;
+    color: #50575e;
+}
+
+.egws-empty {
+    color: #646970;
+    font-style: italic;
+    margin-top: 12px;
+}
+
+.egws-muted {
+    color: #c3c4c7;
 }
