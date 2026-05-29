@@ -1,0 +1,50 @@
+.egws-wrap h1 {
+    margin-bottom: 20px;
+}
+
+.egws-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    max-width: 780px;
+}
+
+.egws-card h2 {
+    margin-top: 0;
+    font-size: 1.1em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+}
+
+.egws-card .form-table th {
+    width: 200px;
+}
+
+.egws-test-card {
+    border-left: 4px solid #2271b1;
+}
+
+.egws-info-card {
+    border-left: 4px solid #00a32a;
+    background: #f6fff8;
+}
+
+.egws-info-card ol {
+    margin: 0 0 12px 18px;
+}
+
+.egws-info-card ol li {
+    margin-bottom: 6px;
+}
+
+.egws-saved {
+    color: #00a32a;
+    font-weight: 500;
+}
+
+.notice.egws-notice {
+    max-width: 780px;
+}
