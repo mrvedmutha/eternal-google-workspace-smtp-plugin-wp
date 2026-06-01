@@ -41,6 +41,12 @@ class EGWS_Settings {
 				. esc_html__( 'Mail logs cleared.', 'eternal-gws-smtp' )
 				. '</p></div>';
 		}
+
+		if ( ! empty( $_GET['egws_saved'] ) ) {
+			echo '<div class="notice notice-success egws-notice is-dismissible"><p>'
+				. esc_html__( 'Settings saved.', 'eternal-gws-smtp' )
+				. '</p></div>';
+		}
 	}
 
 	// -------------------------------------------------------------------------
@@ -74,7 +80,8 @@ class EGWS_Settings {
 
 		$raw_password = $input['app_password'] ?? '';
 		if ( ! empty( $raw_password ) ) {
-			$output['app_password'] = EGWS_Crypto::encrypt( $raw_password );
+			// Google displays app passwords with spaces (xxxx xxxx xxxx xxxx); strip them before saving.
+			$output['app_password'] = EGWS_Crypto::encrypt( str_replace( ' ', '', $raw_password ) );
 		} else {
 			$output['app_password'] = $existing['app_password'] ?? '';
 		}
@@ -91,6 +98,13 @@ class EGWS_Settings {
 			EGWS_PLUGIN_URL . 'assets/admin.css',
 			[],
 			EGWS_VERSION
+		);
+		wp_enqueue_script(
+			'egws-admin',
+			EGWS_PLUGIN_URL . 'assets/admin.js',
+			[],
+			EGWS_VERSION,
+			true
 		);
 	}
 
@@ -111,14 +125,34 @@ class EGWS_Settings {
 		$encryption = $opts['encryption'] ?? 'tls';
 		$has_pass   = ! empty( $opts['app_password'] );
 		$logs       = EGWS_Logger::get_all();
+
+		$active_tab = isset( $_GET['tab'] ) && 'test' === $_GET['tab'] ? 'test' : 'settings';
+
+		$base_url      = admin_url( 'options-general.php?page=eternal-gws-smtp' );
+		$settings_url  = esc_url( $base_url . '&tab=settings' );
+		$test_url      = esc_url( $base_url . '&tab=test' );
 		?>
 		<div class="wrap egws-wrap">
 			<h1><?php esc_html_e( 'Google Workspace SMTP', 'eternal-gws-smtp' ); ?></h1>
 
 			<?php settings_errors( 'egws_settings_group' ); ?>
 
-			<!-- SMTP Configuration -->
-			<div class="egws-card">
+			<!-- Tab navigation -->
+			<nav class="nav-tab-wrapper egws-tab-wrapper">
+				<a href="<?php echo $settings_url; ?>"
+				   class="nav-tab<?php echo 'settings' === $active_tab ? ' nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Settings', 'eternal-gws-smtp' ); ?>
+				</a>
+				<a href="<?php echo $test_url; ?>"
+				   class="nav-tab<?php echo 'test' === $active_tab ? ' nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Test Email', 'eternal-gws-smtp' ); ?>
+				</a>
+			</nav>
+
+			<?php if ( 'settings' === $active_tab ) : ?>
+
+			<!-- Tab: Settings -->
+			<div class="egws-card egws-tab-panel">
 				<h2><?php esc_html_e( 'SMTP Configuration', 'eternal-gws-smtp' ); ?></h2>
 				<form method="post" action="options.php">
 					<?php settings_fields( 'egws_settings_group' ); ?>
@@ -168,14 +202,19 @@ class EGWS_Settings {
 								<label for="egws_app_password"><?php esc_html_e( 'App Password', 'eternal-gws-smtp' ); ?></label>
 							</th>
 							<td>
-								<input type="password" id="egws_app_password"
-									name="<?php echo esc_attr( EGWS_OPTION_KEY ); ?>[app_password]"
-									value="" class="regular-text" autocomplete="new-password"
-									placeholder="<?php echo $has_pass ? esc_attr__( 'Leave blank to keep existing', 'eternal-gws-smtp' ) : 'xxxx xxxx xxxx xxxx'; ?>" />
+								<div class="egws-password-wrap">
+									<input type="password" id="egws_app_password"
+										name="<?php echo esc_attr( EGWS_OPTION_KEY ); ?>[app_password]"
+										value="" class="regular-text" autocomplete="new-password"
+										placeholder="<?php echo $has_pass ? esc_attr__( 'Leave blank to keep existing', 'eternal-gws-smtp' ) : 'xxxxxxxxxxxxxxxx'; ?>" />
+									<button type="button" class="button egws-toggle-pass" aria-label="<?php esc_attr_e( 'Toggle password visibility', 'eternal-gws-smtp' ); ?>" data-target="egws_app_password">
+										<span class="dashicons dashicons-visibility"></span>
+									</button>
+								</div>
 								<?php if ( $has_pass ) : ?>
 									<p class="description egws-status-ok"><?php esc_html_e( 'A password is saved. Enter a new one to replace it.', 'eternal-gws-smtp' ); ?></p>
 								<?php else : ?>
-									<p class="description"><?php esc_html_e( '16-character App Password from Google Account → Security → App passwords.', 'eternal-gws-smtp' ); ?></p>
+									<p class="description"><?php esc_html_e( '16-character App Password from Google Account → Security → App passwords. Spaces are removed automatically.', 'eternal-gws-smtp' ); ?></p>
 								<?php endif; ?>
 							</td>
 						</tr>
@@ -209,7 +248,6 @@ class EGWS_Settings {
 					<?php submit_button( __( 'Save Settings', 'eternal-gws-smtp' ) ); ?>
 				</form>
 
-				<!-- Setup Instructions (below save button, inside the config card) -->
 				<div class="egws-instructions">
 					<h3><?php esc_html_e( 'How to set up a Google Workspace App Password', 'eternal-gws-smtp' ); ?></h3>
 					<ol>
@@ -226,7 +264,11 @@ class EGWS_Settings {
 						</li>
 						<li><?php esc_html_e( 'Click "Select app" → choose Mail. Click "Select device" → choose Other, type "WordPress". Click Generate.', 'eternal-gws-smtp' ); ?></li>
 						<li><?php esc_html_e( 'Copy the 16-character code shown. Paste it into the App Password field above and save.', 'eternal-gws-smtp' ); ?></li>
-						<li><?php esc_html_e( 'Use the Send Test Email section below to confirm everything is working.', 'eternal-gws-smtp' ); ?></li>
+						<li>
+							<?php esc_html_e( 'Switch to the', 'eternal-gws-smtp' ); ?>
+							<a href="<?php echo $test_url; ?>"><?php esc_html_e( 'Test Email', 'eternal-gws-smtp' ); ?></a>
+							<?php esc_html_e( 'tab to confirm everything is working.', 'eternal-gws-smtp' ); ?>
+						</li>
 					</ol>
 					<div class="egws-info-row">
 						<span><strong><?php esc_html_e( 'SMTP Host:', 'eternal-gws-smtp' ); ?></strong> smtp.gmail.com</span>
@@ -235,32 +277,43 @@ class EGWS_Settings {
 				</div>
 			</div>
 
-			<!-- Test Email -->
-			<?php if ( $has_pass && ! empty( $from_email ) ) : ?>
-			<div class="egws-card egws-test-card">
-				<h2><?php esc_html_e( 'Send Test Email', 'eternal-gws-smtp' ); ?></h2>
-				<p class="description"><?php esc_html_e( 'Sends a real email through your configured SMTP credentials. The result is saved to the log below.', 'eternal-gws-smtp' ); ?></p>
-				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-					<input type="hidden" name="action" value="egws_send_test" />
-					<?php wp_nonce_field( 'egws_test_email', 'egws_test_nonce' ); ?>
-					<table class="form-table" role="presentation">
-						<tr>
-							<th scope="row">
-								<label for="egws_test_to"><?php esc_html_e( 'Send To', 'eternal-gws-smtp' ); ?></label>
-							</th>
-							<td>
-								<input type="email" id="egws_test_to" name="egws_test_to"
-									class="regular-text" placeholder="you@example.com" required />
-							</td>
-						</tr>
-					</table>
-					<?php submit_button( __( 'Send Test Email', 'eternal-gws-smtp' ), 'secondary' ); ?>
-				</form>
-			</div>
-			<?php endif; ?>
+			<?php else : ?>
 
-			<!-- Mail Log -->
-			<div class="egws-card egws-log-card">
+			<!-- Tab: Test Email -->
+			<div class="egws-card egws-tab-panel egws-test-card">
+				<h2><?php esc_html_e( 'Send Test Email', 'eternal-gws-smtp' ); ?></h2>
+
+				<?php if ( ! $has_pass || empty( $from_email ) ) : ?>
+					<div class="notice notice-warning inline egws-inline-notice">
+						<p>
+							<?php esc_html_e( 'SMTP is not fully configured yet.', 'eternal-gws-smtp' ); ?>
+							<a href="<?php echo $settings_url; ?>"><?php esc_html_e( 'Complete the Settings tab', 'eternal-gws-smtp' ); ?></a>
+							<?php esc_html_e( 'before sending a test email.', 'eternal-gws-smtp' ); ?>
+						</p>
+					</div>
+				<?php else : ?>
+					<p class="description"><?php esc_html_e( 'Sends a real email through your configured SMTP credentials. The result is saved to the log below.', 'eternal-gws-smtp' ); ?></p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="egws_send_test" />
+						<?php wp_nonce_field( 'egws_test_email', 'egws_test_nonce' ); ?>
+						<table class="form-table" role="presentation">
+							<tr>
+								<th scope="row">
+									<label for="egws_test_to"><?php esc_html_e( 'Send To', 'eternal-gws-smtp' ); ?></label>
+								</th>
+								<td>
+									<input type="email" id="egws_test_to" name="egws_test_to"
+										class="regular-text" placeholder="you@example.com" required />
+								</td>
+							</tr>
+						</table>
+						<?php submit_button( __( 'Send Test Email', 'eternal-gws-smtp' ), 'primary' ); ?>
+					</form>
+				<?php endif; ?>
+			</div>
+
+			<!-- Mail Log (Test Email tab) -->
+			<div class="egws-card egws-log-card egws-tab-panel">
 				<div class="egws-log-header">
 					<h2><?php esc_html_e( 'Mail Log', 'eternal-gws-smtp' ); ?></h2>
 					<?php if ( ! empty( $logs ) ) : ?>
@@ -317,6 +370,8 @@ class EGWS_Settings {
 				<?php endif; ?>
 			</div>
 
+			<?php endif; ?>
+
 		</div>
 		<?php
 	}
@@ -355,7 +410,7 @@ class EGWS_Settings {
 		EGWS_Logger::$context = 'system';
 
 		wp_safe_redirect( add_query_arg(
-			[ 'page' => 'eternal-gws-smtp', 'egws_test' => $sent ? 'success' : 'fail' ],
+			[ 'page' => 'eternal-gws-smtp', 'tab' => 'test', 'egws_test' => $sent ? 'success' : 'fail' ],
 			admin_url( 'options-general.php' )
 		) );
 		exit;
@@ -371,7 +426,7 @@ class EGWS_Settings {
 		EGWS_Logger::clear();
 
 		wp_safe_redirect( add_query_arg(
-			[ 'page' => 'eternal-gws-smtp', 'egws_logs_cleared' => '1' ],
+			[ 'page' => 'eternal-gws-smtp', 'tab' => 'test', 'egws_logs_cleared' => '1' ],
 			admin_url( 'options-general.php' )
 		) );
 		exit;

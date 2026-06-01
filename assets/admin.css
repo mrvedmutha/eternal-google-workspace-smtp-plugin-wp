@@ -2,6 +2,25 @@
     margin-bottom: 20px;
 }
 
+/* Tab navigation */
+.egws-tab-wrapper {
+    margin-bottom: 0;
+    border-bottom: 1px solid #c3c4c7;
+}
+
+.egws-tab-panel {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: 0;
+}
+
+/* Inline notice (inside a card) */
+.egws-inline-notice {
+    margin: 0 0 16px;
+    border-left-width: 4px;
+}
+
 /* Cards */
 .egws-card {
     background: #fff;
@@ -59,6 +78,36 @@
     border-radius: 3px;
     padding: 10px 14px;
     font-size: 0.9em;
+}
+
+/* App password field + toggle */
+.egws-password-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.egws-password-wrap .regular-text {
+    margin: 0;
+}
+
+.egws-toggle-pass {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 30px;
+    padding: 0;
+    min-height: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.egws-toggle-pass .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 1;
 }
 
 /* Status text */
